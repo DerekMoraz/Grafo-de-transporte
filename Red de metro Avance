@@ -2,53 +2,129 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
+lineas_metro = {
+    "L1": [
+        "Observatorio", "Tacubaya", "Juanacatlán", "Chapultepec", "Sevilla",
+        "Insurgentes", "Cuauhtémoc", "Balderas", "Salto del Agua",
+        "Isabel la Católica", "Pino Suárez", "Merced", "Candelaria",
+        "San Lázaro", "Moctezuma", "Balbuena", "Boulevard Puerto Aéreo",
+        "Gómez Farías", "Zaragoza", "Pantitlán"
+    ],
+    "L2": [
+        "Cuatro Caminos", "Panteones", "Tacuba", "Cuitláhuac", "Popotla",
+        "Colegio Militar", "Normal", "San Cosme", "Revolución", "Hidalgo",
+        "Bellas Artes", "Allende", "Zócalo/Tenochtitlan", "Pino Suárez",
+        "San Antonio Abad", "Chabacano", "Viaducto", "Xola",
+        "Villa de Cortés", "Nativitas", "Portales", "Ermita",
+        "General Anaya", "Tasqueña"
+    ],
+    "L3": [
+        "Indios Verdes", "Deportivo 18 de Marzo", "Potrero", "La Raza",
+        "Tlatelolco", "Guerrero", "Hidalgo", "Juárez", "Balderas",
+        "Niños Héroes", "Hospital General", "Centro Médico",
+        "Etiopía/Plaza de la Transparencia", "Eugenia", "División del Norte",
+        "Zapata", "Coyoacán", "Viveros/Derechos Humanos",
+        "Miguel Ángel de Quevedo", "Copilco", "Universidad"
+    ],
+    "L4": [
+        "Martín Carrera", "Talismán", "Bondojito", "Consulado",
+        "Canal del Norte", "Morelos", "Candelaria", "Fray Servando",
+        "Jamaica", "Santa Anita"
+    ],
+    "L5": [
+        "Politécnico", "Instituto del Petróleo", "Autobuses del Norte",
+        "La Raza", "Misterios", "Valle Gómez", "Consulado",
+        "Eduardo Molina", "Aragón", "Oceanía", "Terminal Aérea",
+        "Hangares", "Pantitlán"
+    ],
+    "L6": [
+        "El Rosario", "Tezozómoc", "UAM-Azcapotzalco", "Ferrería/Arena CDMX",
+        "Norte 45", "Vallejo", "Instituto del Petróleo", "Lindavista",
+        "Deportivo 18 de Marzo", "La Villa-Basílica", "Martín Carrera"
+    ],
+    "L7": [
+        "El Rosario", "Aquiles Serdán", "Camarones", "Refinería",
+        "Tacuba", "San Joaquín", "Polanco", "Auditorio", "Constituyentes",
+        "Tacubaya", "San Pedro de los Pinos", "San Antonio", "Mixcoac",
+        "Barranca del Muerto"
+    ],
+    "L8": [
+        "Garibaldi/Lagunilla", "Bellas Artes", "San Juan de Letrán",
+        "Salto del Agua", "Doctores", "Obrera", "Chabacano", "La Viga",
+        "Santa Anita", "Coyuya", "Iztacalco", "Apatlaco", "Aculco",
+        "Escuadrón 201", "Atlalilco", "Iztapalapa", "Cerro de la Estrella",
+        "UAM-I", "Constitución de 1917"
+    ],
+    "L9": [
+        "Tacubaya", "Patriotismo", "Chilpancingo", "Centro Médico",
+        "Lázaro Cárdenas", "Chabacano", "Jamaica", "Mixiuhca",
+        "Velódromo", "Ciudad Deportiva", "Puebla", "Pantitlán"
+    ],
+    "LA": [
+        "Pantitlán", "Agrícola Oriental", "Canal de San Juan", "Tepalcates",
+        "Guelatao", "Peñón Viejo", "Acatitla", "Santa Marta", "Los Reyes",
+        "La Paz"
+    ],
+    "LB": [
+        "Buenavista", "Guerrero", "Garibaldi/Lagunilla", "Lagunilla",
+        "Tepito", "Morelos", "San Lázaro", "Ricardo Flores Magón",
+        "Romero Rubio", "Oceanía", "Deportivo Oceanía", "Bosque de Aragón",
+        "Villa de Aragón", "Nezahualcóyotl", "Impulsora", "Río de los Remedios",
+        "Múzquiz", "Ecatepec", "Olímpica", "Plaza Aragón", "Ciudad Azteca"
+    ],
+    "L12": [
+        "Mixcoac", "Insurgentes Sur", "Hospital 20 de Noviembre", "Zapata",
+        "Parque de los Venados", "Eje Central", "Ermita", "Mexicaltzingo",
+        "Atlalilco", "Culhuacán", "San Andrés Tomatlán", "Lomas Estrella",
+        "Calle 11", "Periférico Oriente", "Tezonco", "Olivos", "Nopalera",
+        "Zapotitlán", "Tlaltenco", "Tláhuac"
+    ]
+}
+
 G = nx.Graph()
 
-conexiones = [
-    ("Tacubaya", "Centro", {"peso": 4}),
-    ("Centro", "Balderas", {"peso": 2}),
-    ("Balderas", "Pino Suárez", {"peso": 3}),
-    ("Pino Suárez", "Tacubaya", {"peso": 5}),
-    ("Tacubaya", "Balderas", {"peso": 6}),  o
-    ("Centro", "Pino Suárez", {"peso": 3})  
-]
+conexiones = []
+for linea, estaciones in lineas_metro.items():
+    for i in range(len(estaciones) - 1):
+        origen = estaciones[i]
+        destino = estaciones[i + 1]
+        peso = 2 + ((i + len(linea)) % 3)
+        conexiones.append((origen, destino, {"peso": peso, "linea": linea}))
+
 G.add_edges_from(conexiones)
 
-
-ciclo_tsp = nx.approximation.traveling_salesman_problem(
-    G, weight='peso', method=nx.approximation.christofides
-)
-
-
+origen_ruta = "Tacubaya"
+destino_ruta = "Pino Suárez"
+ruta_corta = nx.shortest_path(G, source=origen_ruta, target=destino_ruta, weight="peso")
 tiempo_total = sum(
-    G[u][v]['peso'] for u, v in zip(ciclo_tsp[:-1], ciclo_tsp[1:])
+    G[u][v]["peso"] for u, v in zip(ruta_corta[:-1], ruta_corta[1:])
 )
 
-print("--- RED REDUCIDA: CIRCUITO HAMILTONIANO (TSP) ---")
-print(f"Ruta del circuito: {' -> '.join(ciclo_tsp)}")
-print(f"Tiempo total del recorrido: {tiempo_total} minutos\n")
+print("--- RED METRO CDMX: RUTA MÁS CORTA ---")
+print(f"Estaciones totales en el grafo: {G.number_of_nodes()}")
+print(f"Conexiones totales en el grafo: {G.number_of_edges()}")
+print(f"Ruta ({origen_ruta} -> {destino_ruta}): {' -> '.join(ruta_corta)}")
+print(f"Tiempo estimado del tramo: {tiempo_total} minutos\n")
 
+plt.figure(figsize=(14, 10))
+pos = nx.spring_layout(G, seed=42, k=0.25)
 
-plt.figure(figsize=(8, 5))
-pos = nx.spring_layout(G, seed=42)
+nx.draw_networkx_nodes(
+    G, pos, node_size=140, node_color="lightyellow", edgecolors="black", linewidths=0.7
+)
+nx.draw_networkx_edges(G, pos, width=1.2, edge_color="gray", style="dashed")
+nx.draw_networkx_labels(G, pos, font_size=6.5, font_weight="bold")
 
-
-nx.draw_networkx_nodes(G, pos, node_size=1200, node_color="lightyellow", edgecolors="black")
-nx.draw_networkx_edges(G, pos, width=2, edge_color="gray", style="dashed")
-nx.draw_networkx_labels(G, pos, font_size=10, font_weight="bold")
-
-
-aristas_tsp = list(zip(ciclo_tsp[:-1], ciclo_tsp[1:]))
-nx.draw_networkx_edges(G, pos, edgelist=aristas_tsp, width=4, edge_color="red")
-
-
-pesos = nx.get_edge_attributes(G, 'peso')
-nx.draw_networkx_edge_labels(G, pos, edge_labels=pesos, font_size=9)
+aristas_ruta = list(zip(ruta_corta[:-1], ruta_corta[1:]))
+nx.draw_networkx_nodes(
+    G, pos, nodelist=ruta_corta, node_size=220, node_color="orange", edgecolors="black"
+)
+nx.draw_networkx_edges(G, pos, edgelist=aristas_ruta, width=3.5, edge_color="red")
 
 plt.title(
-    "Modelo Reducido: Ciclo Hamiltoniano / TSP (4 Estaciones)\n"
-    "Circuito cerrado resaltado en rojo",
-    fontsize=11,
+    f"Red Metro CDMX - Grafo Completo\n"
+    f"Ruta resaltada en rojo: {origen_ruta} -> {destino_ruta}",
+    fontsize=12,
     fontweight="bold"
 )
 plt.axis("off")
